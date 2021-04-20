@@ -46,4 +46,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(Card::class);
     }
+
+    public function hasCard(Card $card)
+    {
+        return $this->cards->contains($card);
+    }
+
+    public function fields()
+    {
+        return $this->hasManyThrough(Field::class, Card::class);
+    }
+
+    public function hasField(Field $field)
+    {
+        return $this->fields->contains($field);
+    }
 }

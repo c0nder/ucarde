@@ -12,7 +12,7 @@ class FieldValidationService
     private function getEmailValidationRules(): array
     {
         return [
-            'value' => ['email']
+            'value' => ['string', 'email']
         ];
     }
 
@@ -20,6 +20,20 @@ class FieldValidationService
     {
         return [
             'value' => ['string']
+        ];
+    }
+
+    private function getPhoneValidationRules(): array
+    {
+        return [
+            'value' => ['string']
+        ];
+    }
+
+    private function getUrlValidationRules(): array
+    {
+        return [
+            'value' => ['url']
         ];
     }
 
@@ -32,17 +46,27 @@ class FieldValidationService
         ], $this->$method());
     }
 
-    public function validateFields(array $fields): MessageBag
+    public function validateFields(array $fields): array
     {
-        foreach($fields as $field) {
+        foreach($fields as $index => $field) {
+            $fieldName = $this->getFieldName($index);
             $validator = $this->validate($field['type'], $field['value']);
 
             if ($validator->fails()) {
-                return $validator->errors();
+                $messages = $validator->errors()->messages();
+
+                return [
+                    $fieldName => $messages['value']
+                ];
             }
         }
 
-        return new MessageBag();
+        return [];
+    }
+
+    public function getFieldName(int $index)
+    {
+        return 'fields.' . $index . '.value';
     }
 
     public function getAvailableTypes()
@@ -51,7 +75,7 @@ class FieldValidationService
             'text',
             'email',
             'phone',
-            'address'
+            'url'
         ];
     }
 }

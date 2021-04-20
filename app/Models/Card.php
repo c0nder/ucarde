@@ -15,4 +15,14 @@ class Card extends Model
     {
         return $this->hasMany(Field::class);
     }
+
+    public function hasField(Field $field)
+    {
+        return $this->fields->contains($field);
+    }
+
+    public function withFields()
+    {
+        return $this->load('fields');
+    }
 }

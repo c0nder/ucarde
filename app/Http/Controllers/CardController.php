@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Card\StoreCardRequest;
 use App\Http\Requests\Card\UpdateCardRequest;
 use App\Models\Card;
+use App\Services\Card\CardService;
 use App\Services\FieldValidationService;
 use Illuminate\Http\Request;
 
@@ -18,7 +19,7 @@ class CardController extends Controller
      */
     public function index(Request $request)
     {
-        return response($request->user()->cards()->paginate(10));
+        return response($request->user()->cards()->with('fields')->get());
     }
 
     /**
@@ -31,11 +32,12 @@ class CardController extends Controller
     public function store(StoreCardRequest $request, FieldValidationService $service)
     {
         $validated = $request->validated();
-
         $validatedFields = $service->validateFields($validated['fields']);
 
-        if ($validatedFields->isNotEmpty()) {
-            return response($validatedFields->messages(), 422);
+        if (!empty($validatedFields)) {
+            return response([
+                'errors' => $validatedFields
+            ], 422);
         }
 
         $request->user()
@@ -57,9 +59,13 @@ class CardController extends Controller
      * @param  \App\Models\Card  $card
      * @return \Illuminate\Http\Response
      */
-    public function show(Card $card)
+    public function show(Request $request, Card $card)
     {
-        return response($card);
+        if (!$request->user()->hasCard($card)) {
+            return response(null, 403);
+        }
+
+        return response($card->withFields());
     }
 
     /**
@@ -72,6 +78,10 @@ class CardController extends Controller
      */
     public function update(UpdateCardRequest $request, Card $card, FieldValidationService $service)
     {
+        if (!$request->user()->hasCard($card)) {
+            return response(null, 403);
+        }
+
         $validated = $request->validated();
 
         $card->update([
@@ -102,11 +112,17 @@ class CardController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Card  $card
+     * @param Request $request
+     * @param \App\Models\Card $card
      * @return \Illuminate\Http\Response
+     * @throws \Exception
      */
-    public function destroy(Card $card)
+    public function destroy(Request $request, Card $card)
     {
+        if (!$request->user()->hasCard($card)) {
+            return response(null, 403);
+        }
+
         return response($card->delete());
     }
 }

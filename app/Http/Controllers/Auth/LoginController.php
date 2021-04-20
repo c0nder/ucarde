@@ -20,13 +20,16 @@ class LoginController extends Controller
 
         if (Hash::check($credentials['password'], $user->password)) {
             return response([
-                'api_token' => $user->api_token
+                'token' => $user->api_token
             ]);
         }
 
         return response([
-            'status' => 'error',
-            'message' => 'User with these email and password not found'
-        ]);
+            'errors' => [
+                'message' => [
+                    'User with these email and password not found'
+                ]
+            ]
+        ], 422);
     }
 }
