@@ -2,15 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Middleware\EnsureCardBelongsToUser;
 use App\Http\Requests\Card\StoreCardRequest;
 use App\Http\Requests\Card\UpdateCardRequest;
 use App\Models\Card;
 use App\Services\Card\CardService;
 use App\Services\FieldValidationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CardController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(EnsureCardBelongsToUser::class, [
+            'except' => [
+                'index',
+                'store'
+            ]
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -32,20 +44,16 @@ class CardController extends Controller
     public function store(StoreCardRequest $request, FieldValidationService $service)
     {
         $validated = $request->validated();
-        $validatedFields = $service->validateFields($validated['fields']);
 
-        if (!empty($validatedFields)) {
-            return response([
-                'errors' => $validatedFields
-            ], 422);
-        }
+        $service->validateFields($validated['fields']);
 
         $request->user()
             ->cards()
             ->create([
                 'title' => $validated['title'],
                 'username' => $validated['username'],
-                'description' => $validated['description']
+                'description' => $validated['description'],
+                'public_id' => Str::random(20)
             ])
             ->fields()
             ->createMany($validated['fields']);
@@ -59,12 +67,8 @@ class CardController extends Controller
      * @param  \App\Models\Card  $card
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, Card $card)
+    public function show(Card $card)
     {
-        if (!$request->user()->hasCard($card)) {
-            return response(null, 403);
-        }
-
         return response($card->withFields());
     }
 
@@ -78,23 +82,15 @@ class CardController extends Controller
      */
     public function update(UpdateCardRequest $request, Card $card, FieldValidationService $service)
     {
-        if (!$request->user()->hasCard($card)) {
-            return response(null, 403);
-        }
-
         $validated = $request->validated();
+
+        $service->validateFields($validated['fields']);
 
         $card->update([
             'title' => $validated['title'],
             'username' => $validated['username'],
             'description' => $validated['description']
         ]);
-
-        $validatedFields = $service->validateFields($validated['fields']);
-
-        if ($validatedFields->isNotEmpty()) {
-            return response($validatedFields->messages(), 422);
-        }
 
         $fields = $validated['fields'];
         foreach ($fields as $field) {
@@ -117,12 +113,19 @@ class CardController extends Controller
      * @return \Illuminate\Http\Response
      * @throws \Exception
      */
-    public function destroy(Request $request, Card $card)
+    public function destroy(Card $card)
     {
-        if (!$request->user()->hasCard($card)) {
-            return response(null, 403);
+        return response($card->delete());
+    }
+
+    public function showByPublicId(string $publicId)
+    {
+        $card = Card::where('public_id', $publicId)->first();
+
+        if ($card === null) {
+            return response(null, 404);
         }
 
-        return response($card->delete());
+        return response($card->withFields());
     }
 }

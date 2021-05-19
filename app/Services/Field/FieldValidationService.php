@@ -6,6 +6,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\MessageBag;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class FieldValidationService
 {
@@ -46,7 +47,7 @@ class FieldValidationService
         ], $this->$method());
     }
 
-    public function validateFields(array $fields): array
+    public function validateFields(array $fields)
     {
         foreach($fields as $index => $field) {
             $fieldName = $this->getFieldName($index);
@@ -55,13 +56,11 @@ class FieldValidationService
             if ($validator->fails()) {
                 $messages = $validator->errors()->messages();
 
-                return [
+                throw new UnprocessableEntityHttpException(json_encode([
                     $fieldName => $messages['value']
-                ];
+                ]));
             }
         }
-
-        return [];
     }
 
     public function getFieldName(int $index)

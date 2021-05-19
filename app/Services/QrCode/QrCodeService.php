@@ -7,15 +7,16 @@ namespace App\Services\QrCode;
 use App\Models\Card;
 use App\Models\Field;
 use App\Services\QrCode\FieldTypes\AbstractFieldType;
+use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class QrCodeService
 {
     public function generateByCard(Card $card)
     {
-        $hashedCardId = base64_encode($card->id);
+        $schemeAndHost = request()->getSchemeAndHttpHost();
 
-        return QrCode::format('svg')->size(400)->generate(url("card/{$hashedCardId}"));
+        return QrCode::format('svg')->size(400)->generate($schemeAndHost . "/card/{$card->public_id}");
     }
 
     public function generateByField(Field $field)

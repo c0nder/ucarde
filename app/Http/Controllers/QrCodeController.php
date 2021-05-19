@@ -2,37 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Middleware\EnsureCardBelongsToUser;
 use App\Models\Card;
 use App\Models\Field;
 use App\Services\QrCode\QrCodeService;
-use Illuminate\Http\Request;
 
 class QrCodeController extends Controller
 {
-    protected $qrCodeService;
-
-    public function __construct(QrCodeService $qrCodeService)
+    public function __construct()
     {
-        $this->qrCodeService = $qrCodeService;
+        $this->middleware(EnsureCardBelongsToUser::class);
     }
 
-
-    public function generateByCard(Request $request, Card $card)
+    public function generateByCard(Card $card, QrCodeService $qrCodeService)
     {
-        if (!$request->user()->hasCard($card)) {
-            return response(null, 403);
-        }
-
-        return response($this->qrCodeService->generateByCard($card));
+        return response($qrCodeService->generateByCard($card));
     }
 
-    public function generateByField(Request $request, Field $field)
+    public function generateByField(Field $field, QrCodeService $qrCodeService)
     {
-        if (!$request->user()->hasField($field)) {
-            return response(null, 403);
-        }
-
-        $qrCode = $this->qrCodeService->generateByField($field);
+        $qrCode = $qrCodeService->generateByField($field);
 
         if ($qrCode === null) {
             return response(null, 404);
