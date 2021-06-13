@@ -11,6 +11,6 @@ class EmailFieldType extends AbstractFieldType
 
     function getImage(string $value)
     {
-        return QrCode::size(500)->email($value);
+        return QrCode::size(400)->email($value);
     }
 }

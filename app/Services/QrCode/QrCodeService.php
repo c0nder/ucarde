@@ -15,8 +15,9 @@ class QrCodeService
     public function generateByCard(Card $card)
     {
         $schemeAndHost = request()->getSchemeAndHttpHost();
+        $port = request()->getPort();
 
-        return QrCode::format('svg')->size(400)->generate($schemeAndHost . "/card/{$card->public_id}");
+        return QrCode::format('svg')->size(400)->generate("{$schemeAndHost}:3000/card/{$card->public_id}");
     }
 
     public function generateByField(Field $field)

@@ -4,10 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AuthLoginRequest extends FormRequest
+class UserUpdateRequest extends FormRequest
 {
-    protected $stopOnFirstFailure = true;
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -26,8 +24,8 @@ class AuthLoginRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => ['required', 'exists:users'],
-            'password' => ['required']
+            'email' => ['required', 'email'],
+            'name' => ['required']
         ];
     }
 
@@ -35,8 +33,10 @@ class AuthLoginRequest extends FormRequest
     {
         return [
             'email.required' => 'Это поле обязательно',
-            'email.exists' => 'Пользователь с таким email не существует',
-            'password.required' => 'Это поле обязательно'
+            'email.email' => 'Пожалуйста, введите корректный email',
+            'name.required' => 'Это поле не может быть пустым'
         ];
     }
+
+
 }

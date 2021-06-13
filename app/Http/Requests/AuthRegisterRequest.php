@@ -36,14 +36,14 @@ class AuthRegisterRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => 'Name field is required',
-            'email.required' => 'Email field is required',
-            'email.email' => 'Please enter a valid email',
-            'email.unique' => 'User with this email already exists',
-            'password.required' => 'Password field is required',
-            'password.between' => 'The password must be between 6 and 10 characters long',
-            'repeatedPassword.required' => 'Passwords must match',
-            'repeatedPassword.same' => 'Passwords must match'
+            'name.required' => 'Это поле обязательно',
+            'email.required' => 'Это поле обязательно',
+            'email.email' => 'Пожалуйста, введите корректный email',
+            'email.unique' => 'Пользователь с таким email уже существует',
+            'password.required' => 'Это поле обязательно',
+            'password.between' => 'Пароль должен содержать от 6 до 10 символов',
+            'repeatedPassword.required' => 'Пароли должны совпадать',
+            'repeatedPassword.same' => 'Пароли должны совпадать'
         ];
     }
 }

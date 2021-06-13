@@ -10,6 +10,7 @@ use App\Services\Card\CardService;
 use App\Services\FieldValidationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use phpDocumentor\Reflection\Types\Array_;
 
 class CardController extends Controller
 {
@@ -18,7 +19,9 @@ class CardController extends Controller
         $this->middleware(EnsureCardBelongsToUser::class, [
             'except' => [
                 'index',
-                'store'
+                'store',
+                'showByPublicId',
+                'massUpdate'
             ]
         ]);
     }
@@ -127,5 +130,15 @@ class CardController extends Controller
         }
 
         return response($card->withFields());
+    }
+
+    public function massUpdate(CardService $cardService)
+    {
+        $data = request()->all();
+
+        foreach ($data as $card) {
+            $cardModel = Card::find($card['id']);
+            $cardService->update($cardModel, $card);
+        }
     }
 }

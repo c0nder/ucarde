@@ -11,7 +11,7 @@ class QrCodeController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(EnsureCardBelongsToUser::class);
+//        $this->middleware(EnsureCardBelongsToUser::class);
     }
 
     public function generateByCard(Card $card, QrCodeService $qrCodeService)

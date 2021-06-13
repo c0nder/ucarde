@@ -29,6 +29,7 @@ class StoreCardRequest extends FormRequest
     public function rules(FieldValidationService $service)
     {
         return [
+            'image' => ['image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
             'title' => ['required', 'string', 'max:250'],
             'username' => ['required', 'string', 'max:250'],
             'description' => ['required', 'string', 'max:250'],
@@ -42,15 +43,15 @@ class StoreCardRequest extends FormRequest
     public function messages()
     {
         return [
-            'title.required' => 'Title field is required',
-            'username.required' => 'Name field is required',
-            'description.required' => 'Description field is required',
+            'title.required' => 'Это поле обязательно',
+            'username.required' => 'Это поле обязательно',
+            'description.required' => 'Это поле обязательно',
 
-            'fields.*.type.required' => 'Type of field is required',
+            'fields.*.type.required' => 'Тип поля обязателен',
 
-            'fields.*.name.required' => 'Name of field is required',
+            'fields.*.name.required' => 'Имя поля обязательно',
 
-            'fields.*.value.required' => 'Value of field is required'
+            'fields.*.value.required' => 'Значение поля обязательно'
         ];
     }
 

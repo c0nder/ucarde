@@ -34,5 +34,11 @@ Route::middleware('auth:api')->group(function() {
     Route::prefix('user')->group(function() {
         Route::get('/', [UserController::class, 'show']);
         Route::apiResource('cards', CardController::class);
+
+
+
+
+        Route::put('settings/save', [UserController::class, 'update']);
+        Route::post('cards/save', [CardController::class, 'massUpdate']);
     });
 });
